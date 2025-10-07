@@ -1,3 +1,8 @@
+application/vnd.openxmlformats-officedocument.wordprocessingml.document
+application/msword
+
+
+
 
 
 7ddd7a0055bd9b3ae62d8aac1f5433ddc47946ac696adb7f9947cda7ad2ef2bc
