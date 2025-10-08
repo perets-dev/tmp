@@ -1,16 +1,13 @@
-{{([^}]*)}}
-
-
 #!/bin/bash
 
 # Quick template processor for two files
 # Usage: ./quick_template.sh template1.txt template2.txt
 
-template_file1="$1"
-template_file2="$2"
+template_file_env="$1"
+template_file_librechat="$2"
 
-if [ -z "$template_file1" ] || [ ! -f "$template_file1" ] || [ -z "$template_file2" ] || [ ! -f "$template_file2" ]; then
-    echo "Usage: $0 <template_file1> <template_file2>"
+if [ -z "$template_file_env" ] || [ ! -f "$template_file_env" ] || [ -z "$template_file_librechat" ] || [ ! -f "$template_file_librechat" ]; then
+    echo "Usage: $0 <template_file_env> <template_file_librechat>"
     echo "Both template files must exist"
     exit 1
 fi
@@ -25,19 +22,18 @@ process_template() {
     while [[ $content =~ ({{([^}]*)}}) ]]; do
         param="${BASH_REMATCH[1]}"
         param_name="${BASH_REMATCH[2]}"
-        read -p "Enter value for $param_name: " value
+        read -p "Enter URL in format <gpt2giga IP>: <gpt2giga port> for $param_name: " value
         content=${content//$param/$value}
     done
     
-    echo "$content"
+    echo "$content" > "$template_file"
     echo "=== Finished: $template_file ==="
     echo
 }
 
 # Process both templates
-process_template "$template_file1"
-process_template "$template_file2"
-
+process_template "$template_file_env"
+process_template "$template_file_librechat"
 
 
 ---
