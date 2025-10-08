@@ -1,3 +1,57 @@
+#!/bin/bash
+
+# Script: template_processor.sh
+# Usage: ./template_processor.sh input_template.txt output_file.txt
+
+set -e  # Exit on any error
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input_template> <output_file>"
+    echo "Example: $0 config.txt.template config.txt"
+    exit 1
+fi
+
+INPUT_FILE="$1"
+OUTPUT_FILE="$2"
+
+# Check if input file exists
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: Input file '$INPUT_FILE' not found!"
+    exit 1
+fi
+
+# Create a temporary file for processing
+TEMP_FILE=$(mktemp)
+
+# Copy template to temp file
+cp "$INPUT_FILE" "$TEMP_FILE"
+
+echo "Processing template: $INPUT_FILE"
+echo "Parameters found in template:"
+
+# Extract all parameter placeholders (format: {{PARAM_NAME}})
+grep -o '{{[^}]*}}' "$INPUT_FILE" | sort | uniq | while read -r param; do
+    param_name=$(echo "$param" | sed 's/{{//' | sed 's/}}//')
+    echo "  - $param_name"
+    
+    # Ask user for value
+    read -p "Enter value for $param_name: " value
+    
+    # Replace the parameter in the temp file
+    sed -i "s|${param}|${value}|g" "$TEMP_FILE"
+done
+
+# Move temp file to output
+mv "$TEMP_FILE" "$OUTPUT_FILE"
+
+echo "Template processed successfully!"
+echo "Output file: $OUTPUT_FILE"
+
+
+
+---
+
+
 application/vnd.openxmlformats-officedocument.wordprocessingml.document
 application/msword
 
