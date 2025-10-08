@@ -1,51 +1,39 @@
 #!/bin/bash
 
-# Script: template_processor.sh
-# Usage: ./template_processor.sh input_template.txt output_file.txt
+# Quick template processor for two files
+# Usage: ./quick_template.sh template1.txt template2.txt
 
-set -e  # Exit on any error
+template_file1="$1"
+template_file2="$2"
 
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input_template> <output_file>"
-    echo "Example: $0 config.txt.template config.txt"
+if [ -z "$template_file1" ] || [ ! -f "$template_file1" ] || [ -z "$template_file2" ] || [ ! -f "$template_file2" ]; then
+    echo "Usage: $0 <template_file1> <template_file2>"
+    echo "Both template files must exist"
     exit 1
 fi
 
-INPUT_FILE="$1"
-OUTPUT_FILE="$2"
-
-# Check if input file exists
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "Error: Input file '$INPUT_FILE' not found!"
-    exit 1
-fi
-
-# Create a temporary file for processing
-TEMP_FILE=$(mktemp)
-
-# Copy template to temp file
-cp "$INPUT_FILE" "$TEMP_FILE"
-
-echo "Processing template: $INPUT_FILE"
-echo "Parameters found in template:"
-
-# Extract all parameter placeholders (format: {{PARAM_NAME}})
-grep -o '{{[^}]*}}' "$INPUT_FILE" | sort | uniq | while read -r param; do
-    param_name=$(echo "$param" | sed 's/{{//' | sed 's/}}//')
-    echo "  - $param_name"
+process_template() {
+    local template_file="$1"
+    local content=$(cat "$template_file")
     
-    # Ask user for value
-    read -p "Enter value for $param_name: " value
+    echo "=== Processing: $template_file ==="
     
-    # Replace the parameter in the temp file
-    sed -i "s|${param}|${value}|g" "$TEMP_FILE"
-done
+    # Find all parameters and replace them
+    while [[ $content =~ ({{([^}]*)}}) ]]; do
+        param="${BASH_REMATCH[1]}"
+        param_name="${BASH_REMATCH[2]}"
+        read -p "Enter value for $param_name: " value
+        content=${content//$param/$value}
+    done
+    
+    echo "$content"
+    echo "=== Finished: $template_file ==="
+    echo
+}
 
-# Move temp file to output
-mv "$TEMP_FILE" "$OUTPUT_FILE"
-
-echo "Template processed successfully!"
-echo "Output file: $OUTPUT_FILE"
+# Process both templates
+process_template "$template_file1"
+process_template "$template_file2"
 
 
 
