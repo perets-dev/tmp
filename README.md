@@ -1,3 +1,6 @@
+{{([^}]*)}}
+
+
 #!/bin/bash
 
 # Quick template processor for two files
